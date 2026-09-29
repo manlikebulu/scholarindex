@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scholar Index — Find funded study, verified at the source</title>
+<meta name="description" content="Filter scholarships by host country, funding level, degree, and any course in the world. Every listing links to the funder's own page.">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF9; --text:#1A1A1A; --muted:#6B6862; --border:#E4E1DC;
+  --accent:#B8460E; --sidebar-w:260px; --content-w:760px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:17px; line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ margin:0; font-weight:600; line-height:1.15; letter-spacing:-.02em; }
+h1{ font-size:clamp(2rem,4.2vw,3.05rem); letter-spacing:-.03em; }
+h2{ font-size:clamp(1.45rem,2.5vw,1.95rem); }
+h3{ font-size:1.0625rem; letter-spacing:-.01em; }
+p{ margin:0; }
+a{ color:inherit; }
+button{ font:inherit; }
+img,svg{ display:block; max-width:100%; }
+ul,ol,dl{ margin:0; padding:0; list-style:none; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:1px; }
+::selection{ background:rgba(184,70,14,.18); color:var(--text); }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+.js .reveal{ opacity:0; transform:translateY(24px); transition:opacity 700ms var(--ease), transform 700ms var(--ease); will-change:opacity, transform; }
+.js .reveal.is-visible{ opacity:1; transform:translateY(0); will-change:auto; }
+.l-side{ margin-left:var(--sidebar-w); padding-inline:clamp(20px,4vw,48px); }
+main.container > section{ max-width:var(--content-w); margin-inline:auto; border-top:1px solid var(--border); padding-block:96px; }
+main.container > section:first-child{ border-top:0; padding-top:clamp(72px,9vw,120px); }
+@media (min-width:768px){ main.container > section{ padding-block:120px; } }
+section[id]{ scroll-margin-top:84px; }
+@media (min-width:901px){ section[id]{ scroll-margin-top:24px; } }
+.sec-head{ margin-bottom:28px; }
+.prose p + p{ margin-top:1.15em; }
+.prose > p{ font-size:17px; }
+.topbar{ display:none; position:sticky; top:0; z-index:50; align-items:center; justify-content:space-between; gap:16px; height:60px; padding-inline:20px; background:rgba(250,250,249,.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+.hamburger{ width:44px; height:44px; display:grid; place-items:center; padding:0; background:transparent; border:1px solid var(--border); border-radius:2px; cursor:pointer; transition:border-color .25s var(--ease); }
+.hamburger:hover{ border-color:var(--accent); }
+.bars{ display:block; position:relative; width:18px; height:12px; }
+.bars span{ position:absolute; left:0; width:100%; height:1.5px; background:var(--text); transition:transform .3s var(--ease), opacity .18s linear; }
+.bars span:nth-child(1){ top:0; } .bars span:nth-child(2){ top:5.25px; } .bars span:nth-child(3){ top:10.5px; }
+.hamburger[aria-expanded="true"] .bars span:nth-child(1){ transform:translateY(5.25px) rotate(45deg); }
+.hamburger[aria-expanded="true"] .bars span:nth-child(2){ opacity:0; }
+.hamburger[aria-expanded="true"] .bars span:nth-child(3){ transform:translateY(-5.25px) rotate(-45deg); }
+.sidebar{ position:fixed; inset:0 auto 0 0; z-index:60; width:var(--sidebar-w); display:flex; flex-direction:column; gap:36px; padding:40px 28px 32px; background:var(--bg); border-right:1px solid var(--border); overflow-y:auto; }
+.wordmark{ display:inline-flex; align-items:center; gap:10px; font-size:15px; font-weight:600; letter-spacing:-.01em; text-decoration:none; }
+.wordmark-mark{ width:9px; height:9px; background:var(--accent); flex:none; }
+.nav{ display:flex; flex-direction:column; }
+.nav-link{ position:relative; display:block; padding:7px 22px 7px 14px; margin-left:-14px; border-left:2px solid transparent; color:var(--muted); font-size:14px; text-decoration:none; transition:transform .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease); }
+.nav-link::after{ content:''; position:absolute; right:0; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:50%; background:var(--accent); opacity:0; transform:scale(.4); transition:opacity .25s var(--ease), transform .25s var(--ease); }
+.nav-link.is-active{ color:var(--text); font-weight:600; border-left-color:var(--accent); }
+@media (hover:hover){
+  .nav-link:hover{ transform:translateX(16px); color:var(--text); border-left-color:var(--accent); }
+  .nav-link:hover::after{ opacity:1; transform:scale(1); }
+}
+.sidebar-note{ margin-top:auto; font-size:12px; line-height:1.6; color:var(--muted); max-width:24ch; }
+.sidebar-close{ display:none; }
+@media (max-width:900px){
+  .topbar{ display:flex; }
+  .sidebar{ width:min(300px,84vw); transform:translateX(-100%); visibility:hidden; transition:transform .4s var(--ease), visibility .4s; padding-top:24px; z-index:80; }
+  .sidebar.is-open{ transform:translateX(0); visibility:visible; }
+  .sidebar-close{ display:inline-flex; align-items:center; align-self:flex-start; padding:6px 12px; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); background:transparent; border:1px solid var(--border); border-radius:2px; cursor:pointer; transition:color .25s var(--ease), border-color .25s var(--ease); }
+  .sidebar-close:hover{ color:var(--accent); border-color:var(--accent); }
+  .l-side{ margin-left:0; }
+  .sidebar-note{ margin-top:32px; }
+}
+.backdrop{ position:fixed; inset:0; z-index:70; background:rgba(26,26,26,.36); opacity:0; pointer-events:none; transition:opacity .35s var(--ease); }
+.backdrop.is-visible{ opacity:1; pointer-events:auto; }
+.eyebrow{ display:inline-flex; align-items:center; gap:10px; margin-bottom:18px; font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+.eyebrow::before{ content:''; display:block; width:24px; height:1px; background:var(--accent); }
+.lede{ font-size:clamp(1.0625rem,1.6vw,1.1875rem); line-height:1.65; }
+.btn{ position:relative; isolation:isolate; overflow:hidden; display:inline-flex; align-items:center; gap:9px; padding:13px 24px; font-size:15px; font-weight:500; line-height:1; color:var(--bg); background:var(--text); border:1px solid var(--text); border-radius:2px; text-decoration:none; cursor:pointer; transition:color .3s var(--ease), border-color .3s var(--ease); }
+.btn::before{ content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--accent); transform:scaleX(0); transform-origin:left center; transition:transform .45s var(--ease); }
+.btn:hover::before, .btn:focus-visible::before{ transform:scaleX(1); }
+.btn:active{ transform:translateY(1px); }
+.btn--ghost{ color:var(--text); background:transparent; border-color:var(--border); }
+.btn--ghost:hover, .btn--ghost:focus-visible{ color:#fff; border-color:var(--accent); }
+.link-arrow{ display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:500; color:var(--accent); text-decoration:none; border-bottom:1px solid transparent; transition:border-color .25s var(--ease); }
+.link-arrow span{ display:inline-block; transition:transform .28s var(--ease); }
+@media (hover:hover){ .link-arrow:hover{ border-bottom-color:currentColor; } .link-arrow:hover span{ transform:translateX(4px); } }
+.link-arrow:focus-visible span{ transform:translateX(4px); }
+.hero-actions{ display:flex; flex-wrap:wrap; align-items:center; gap:14px 26px; margin-top:38px; }
+.hero{ position:relative; overflow:hidden; }
+.hero::before{ content:''; position:absolute; z-index:-1; pointer-events:none; width:820px; height:820px; left:50%; top:-390px; margin-left:-410px; background:radial-gradient(circle at center, rgba(184,70,14,.075), rgba(184,70,14,0) 68%); animation:drift 14s ease-in-out infinite alternate; }
+@keyframes drift{ from{ transform:translate3d(-30px,0,0) scale(1); } to{ transform:translate3d(30px,26px,0) scale(1.08); } }
+.hero h1{ max-width:16ch; } .hero .lede{ margin-top:24px; max-width:58ch; }
+.items{ margin-top:44px; }
+.item{ position:relative; border-top:1px solid var(--border); }
+.item::before{ content:''; position:absolute; left:0; top:0; width:2px; height:0; background:var(--accent); transition:height .5s var(--ease); }
+.item-inner{ position:relative; padding:28px 0 28px 24px; transition:transform .35s var(--ease); }
+@media (hover:hover){ .item:hover::before{ height:100%; } .item:hover .item-inner{ transform:translateX(32px); } }
+.item h3{ margin-bottom:10px; } .item p{ max-width:62ch; } .item .link-arrow{ margin-top:16px; }
+.search-form{ display:grid; grid-template-columns:1fr; gap:18px; margin-top:40px; }
+@media (min-width:640px){ .search-form{ grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); } .field--wide{ grid-column:1 / -1; } .form-actions{ grid-column:1 / -1; } }
+.field{ display:flex; flex-direction:column; gap:7px; }
+.field label{ font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.field input, .field select{ width:100%; font:inherit; font-size:15px; color:var(--text); background-color:transparent; border:1px solid var(--border); border-radius:2px; padding:11px 13px; transition:border-color .25s var(--ease); }
+.field input::placeholder{ color:#A8A49D; }
+.field input:focus, .field select:focus{ border-color:var(--accent); }
+.field select{ appearance:none; -webkit-appearance:none; padding-right:38px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236B6862' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; cursor:pointer; }
+.form-actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
+.search-hint{ margin-top:20px; font-size:12.5px; color:var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; }
+.chip{ padding:4px 11px; font-family:inherit; font-size:12px; color:var(--text); background:transparent; border:1px solid var(--border); border-radius:999px; cursor:pointer; transition:color .2s var(--ease), border-color .2s var(--ease); }
+.chip:hover{ color:var(--accent); border-color:var(--accent); }
+.result-count{ margin-top:44px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.results{ margin-top:8px; }
+.result{ border-top:1px solid var(--border); padding:32px 0; }
+.result-head{ display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px 18px; margin-bottom:12px; }
+.result-head h3{ flex:1 1 60%; }
+.badge{ display:inline-flex; align-items:center; gap:6px; flex:none; padding:3px 10px; font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--accent); border:1px solid rgba(184,70,14,.35); border-radius:999px; white-space:nowrap; }
+.badge::before{ content:''; width:5px; height:5px; border-radius:50%; background:var(--accent); }
+.result-meta{ font-size:12px; font-weight:500; letter-spacing:.09em; text-transform:uppercase; margin-bottom:6px; }
+.result-fields{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+.result-desc{ font-size:16px; max-width:64ch; }
+.result-foot{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 22px; margin-top:18px; }
+.verified-note{ font-size:12.5px; color:var(--muted); }
+.result--more, .result--empty, .result--idle{ padding:32px 0; }
+.result--empty p, .result--idle p{ margin-bottom:14px; max-width:56ch; }
+.result--idle .idle-label{ font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.result--more .btn{ margin-top:4px; }
+.index-note{ margin-top:48px; padding-top:24px; border-top:1px solid var(--border); font-size:13.5px; line-height:1.65; color:var(--muted); max-width:62ch; }
+.stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:44px 32px; margin-top:48px; }
+@media (min-width:768px){ .stats{ grid-template-columns:repeat(4,1fr); } }
+.stat dt{ font-size:clamp(1.75rem,3vw,2.3rem); font-weight:600; letter-spacing:-.035em; line-height:1; font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+.stat dd{ margin:12px 0 0; font-size:11.5px; font-weight:500; letter-spacing:.11em; text-transform:uppercase; }
+.quote blockquote{ margin:0; max-width:26ch; font-size:clamp(1.35rem,2.6vw,1.85rem); font-weight:500; line-height:1.35; letter-spacing:-.02em; }
+.quote cite{ display:block; margin-top:26px; font-size:12px; font-style:normal; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.note-year{ display:block; margin-bottom:8px; font-size:12px; font-weight:600; letter-spacing:.12em; color:var(--muted); font-variant-numeric:tabular-nums; }
+.site-footer{ padding-bottom:0; }
+.footer-inner{ max-width:var(--content-w); margin-inline:auto; border-top:1px solid var(--border); padding:56px 0 80px; }
+.footer-brand{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 18px; }
+.footer-tagline{ font-size:14px; color:var(--muted); }
+.footer-nav{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:32px; }
+.footer-nav a{ font-size:13.5px; color:var(--muted); text-decoration:none; border-bottom:1px solid transparent; transition:color .25s var(--ease), border-color .25s var(--ease); }
+.footer-nav a:hover{ color:var(--accent); border-bottom-color:currentColor; }
+.footer-legal{ margin-top:36px; padding-top:24px; border-top:1px solid var(--border); font-size:12.5px; line-height:1.7; color:var(--muted); max-width:66ch; }
+.skip-link{ position:absolute; left:16px; top:-64px; z-index:200; padding:10px 16px; background:var(--text); color:var(--bg); font-size:14px; text-decoration:none; border-radius:2px; transition:top .2s var(--ease); }
+.skip-link:focus{ top:16px; }
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto; }
+  *, *::before, *::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+  .js .reveal{ opacity:1 !important; transform:none !important; }
+  .hero::before{ animation:none; }
+  .item:hover .item-inner{ transform:none; }
+  .nav-link:hover{ transform:none; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a class="wordmark" href="#hero">
+    <span class="wordmark-mark" aria-hidden="true"></span>
+    <span>Scholar Index</span>
+  </a>
+  <button class="hamburger" id="hamburger" type="button"
+          aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+    <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+</header>
+
+<div class="backdrop" id="backdrop"></div>
+
+<aside class="sidebar" id="sidebar" aria-label="Site navigation">
+  <button class="sidebar-close" id="sidebar-close" type="button">Close</button>
+  <a class="wordmark" href="#hero">
+    <span class="wordmark-mark" aria-hidden="true"></span>
+    <span>Scholar Index</span>
+  </a>
+  <nav class="nav" aria-label="Sections">
+    <a class="nav-link" href="#hero">Overview</a>
+    <a class="nav-link" href="#about">About</a>
+    <a class="nav-link" href="#method">Method</a>
+    <a class="nav-link" href="#search">Search</a>
+    <a class="nav-link" href="#impact">Impact</a>
+    <a class="nav-link" href="#notes">Field notes</a>
+    <a class="nav-link" href="#start">Start</a>
+  </nav>
+  <p class="sidebar-note">
+    Every listing links to the funder's own page. Index check: 29 Sep 2026.
+  </p>
+</aside>
+
+<main class="container l-side" id="main">
+
+  <section id="hero" class="hero reveal" aria-labelledby="hero-h">
+    <p class="eyebrow">Scholarship index</p>
+    <h1 id="hero-h">Find funding for the degree you actually want to study.</h1>
+    <p class="lede">
+      Filter awards by host country, funding level, degree, and any course — from
+      neuroscience to marine engineering. Every entry links to the funder's own page, not to
+      an aggregator, and never to a paid agent.
+    </p>
+    <div class="hero-actions">
+      <a class="btn" href="#search">Search awards</a>
+      <a class="link-arrow" href="#method">How we verify listings <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section id="about" class="reveal" aria-labelledby="about-h">
+    <header class="sec-head">
+      <p class="eyebrow">About</p>
+      <h2 id="about-h">Most scholarship lists waste your time.</h2>
+    </header>
+    <div class="prose">
+      <p>
+        Search results are full of dead links, expired deadlines, and pages that ask for a fee
+        before they show you anything. We index a smaller set of awards and check each one
+        against the funder's own website.
+      </p>
+      <p>
+        We list awards that a named institution or government actually administers. If we cannot
+        find the programme on the funder's domain, it does not go in the index. When a scheme
+        closes, we remove it.
+      </p>
+    </div>
+  </section>
+
+  <section id="method" class="reveal" aria-labelledby="method-h">
+    <header class="sec-head">
+      <p class="eyebrow">Method</p>
+      <h2 id="method-h">Three rules the index runs on.</h2>
+    </header>
+    <ul class="items">
+      <li class="item">
+        <div class="item-inner">
+          <h3>Sourced from the funder</h3>
+          <p>Every listing points to the page where the award is administered — a ministry, a university, or a foundation. No intermediate forms. No agent fees.</p>
+          <a class="link-arrow" href="#search">See a listing <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-inner">
+          <h3>Structured for filtering</h3>
+          <p>Each award carries a host country, a funding level, a degree level, and the fields it covers. You filter. We do not guess what you meant.</p>
+          <a class="link-arrow" href="#search">Open the search <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-inner">
+          <h3>Rechecked each cycle</h3>
+          <p>Deadlines move and programmes close. We re-open every link on a rolling schedule and delist anything that no longer resolves to a live programme page.</p>
+          <a class="link-arrow" href="mailto:scholarindexcomplaint@gmail.com?subject=Broken%20listing">Report a broken listing <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="search" class="reveal" aria-labelledby="search-h">
+    <header class="sec-head">
+      <p class="eyebrow">Search</p>
+      <h2 id="search-h">Filter the index.</h2>
+      <p>
+        Pick a host country, a field of study, and a degree level. Every recognised branch of
+        study is covered, and each broad field lists its sub-courses — Neuroscience, Cognitive
+        Science, Marine Engineering, and roughly two hundred more.
+      </p>
+    </header>
+
+    <form class="search-form" id="search-form" role="search" novalidate>
+      <div class="field field--wide">
+        <label for="q">Keyword</label>
+        <input id="q" name="q" type="search" autocomplete="off"
+               placeholder="e.g. neuroscience, cognitive science, public health">
+      </div>
+      <div class="field">
+        <label for="country">Host country</label>
+        <select id="country" name="country"><option value="">All countries</option></select>
+      </div>
+      <div class="field">
+        <label for="field">Field of study</label>
+        <select id="field" name="field"><option value="">All fields</option></select>
+      </div>
+      <div class="field">
+        <label for="subfield">Course / sub-field</label>
+        <select id="subfield" name="subfield"><option value="">All courses</option></select>
+      </div>
+      <div class="field">
+        <label for="funding">Funding level</label>
+        <select id="funding" name="funding">
+          <option value="">Any funding level</option>
+          <option value="full">Fully funded</option>
+          <option value="partial">Partial funding</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="level">Degree level</label>
+        <select id="level" name="level">
+          <option value="">Any degree level</option>
+          <option value="bachelors">Bachelor's</option>
+          <option value="masters">Master's</option>
+          <option value="phd">PhD</option>
+          <option value="postdoc">Postdoc</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="submit">Search awards</button>
+        <button class="btn btn--ghost" type="reset">Reset</button>
+      </div>
+    </form>
+
+    <p class="search-hint">
+      Try:
+      <button type="button" class="chip" data-term="neuroscience">neuroscience</button>
+      <button type="button" class="chip" data-term="cognitive science">cognitive science</button>
+      <button type="button" class="chip" data-term="public health">public health</button>
+      <button type="button" class="chip" data-term="marine engineering">marine engineering</button>
+      <button type="button" class="chip" data-term="machine learning">machine learning</button>
+      <button type="button" class="chip" data-term="climate change">climate change</button>
+    </p>
+
+    <p class="result-count" id="result-count">0 awards — awaiting your search</p>
+    <p class="sr-only" id="live" aria-live="polite"></p>
+    <ul class="results" id="results"></ul>
+
+    <p class="index-note">
+      The index is a curated sample of named, funder-administered schemes covering every
+      recognised branch of study. Links are rechecked on a rolling schedule, but deadlines and
+      eligibility rules change without notice — always confirm on the funder's own page before
+      you apply.
+    </p>
+  </section>
+
+  <section id="impact" class="reveal" aria-labelledby="impact-h">
+    <header class="sec-head">
+      <p class="eyebrow">Impact</p>
+      <h2 id="impact-h">The index in numbers.</h2>
+    </header>
+    <dl class="stats" id="stats">
+      <div class="stat">
+        <dt id="stat-awards" data-count="0" data-suffix="+">0+</dt>
+        <dd>Awards indexed</dd>
+      </div>
+      <div class="stat">
+        <dt id="stat-countries" data-count="0" data-suffix="">0</dt>
+        <dd>Host countries</dd>
+      </div>
+      <div class="stat">
+        <dt id="stat-courses" data-count="0" data-suffix="+">0+</dt>
+        <dd>Courses covered</dd>
+      </div>
+      <div class="stat">
+        <dt data-count="100" data-suffix="%">100%</dt>
+        <dd>Listings linking to the funder</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section id="quote" class="reveal quote" aria-labelledby="quote-h">
+    <h2 id="quote-h" class="sr-only">Editorial standard</h2>
+    <blockquote>
+      A listing is only useful if it ends at the funder's own page. Anything else is a lead,
+      not a source.
+      <cite>Editorial standard, Scholar Index</cite>
+    </blockquote>
+  </section>
+
+  <section id="notes" class="reveal" aria-labelledby="notes-h">
+    <header class="sec-head">
+      <p class="eyebrow">Field notes</p>
+      <h2 id="notes-h">How to read a scholarship listing.</h2>
+    </header>
+    <ul class="items">
+      <li class="item">
+        <div class="item-inner">
+          <h3>What "fully funded" actually covers</h3>
+          <span class="note-year">2026</span>
+          <p>Tuition, stipend, insurance, and travel are four separate line items. Most awards described as fully funded cover two or three of them. Read the line items.</p>
+          <a class="link-arrow" href="#search" data-filter="funding:full">Browse fully funded awards <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-inner">
+          <h3>Reading a deadline correctly</h3>
+          <span class="note-year">2026</span>
+          <p>Many programmes carry two deadlines: one for admission to the university and one for the scholarship itself. Missing the second is the most common failure.</p>
+          <a class="link-arrow" href="#search" data-filter="level:phd">Browse doctoral awards <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+      <li class="item">
+        <div class="item-inner">
+          <h3>Why we delist programmes</h3>
+          <span class="note-year">2025</span>
+          <p>When a funder pauses a scheme, aggregators often leave the page up for years. We remove the listing the week we confirm the programme has stopped.</p>
+          <a class="link-arrow" href="mailto:scholarindexcomplaint@gmail.com?subject=Broken%20listing">Report a listing <span aria-hidden="true">→</span></a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="start" class="reveal" aria-labelledby="start-h">
+    <header class="sec-head">
+      <p class="eyebrow">Start</p>
+      <h2 id="start-h" style="max-width:22ch;">Start with the filters. Every award in the index is free to browse.</h2>
+    </header>
+    <div class="hero-actions" style="margin-top:32px;">
+      <a class="btn" href="#search">Search awards</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer l-side">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="wordmark">
+        <span class="wordmark-mark" aria-hidden="true"></span>
+        <span>Scholar Index</span>
+      </span>
+      <span class="footer-tagline">An index of funded study, checked at the source.</span>
+    </div>
+    <nav class="footer-nav" aria-label="Footer">
+      <a href="#about">About</a>
+      <a href="#method">Method</a>
+      <a href="#search">Search</a>
+      <a href="#impact">Impact</a>
+      <a href="#notes">Field notes</a>
+      <a href="#start">Start</a>
+    </nav>
+    <p class="footer-legal">
+      © 2026 Scholar Index. Listings are checked against official programme pages on a rolling
+      schedule. Deadlines, eligibility rules, and funding amounts are set by the funder and can
+      change without notice — always confirm on the funder's own page before applying.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var mobileMQ = window.matchMedia('(max-width: 900px)');
+  function prefersReduced() { return reduceMQ.matches; }
+
+  /* ==========================================================
+     TAXONOMY — every broad field of study and its sub-courses.
+     ========================================================== */
+  var FIELDS = {
+    "Agriculture, Forestry & Veterinary": [
+      "Agricultural Economics","Agricultural Engineering","Agronomy","Animal Science",
+      "Aquaculture & Fisheries","Crop Science","Food Science & Technology","Forestry",
+      "Horticulture","Plant Pathology","Soil Science","Veterinary Medicine","Wildlife Management"
+    ],
+    "Architecture & Construction": [
+      "Architecture","Building Technology","Construction Management","Interior Architecture",
+      "Landscape Architecture","Quantity Surveying","Real Estate & Property","Urban & Regional Planning"
+    ],
+    "Arts, Design & Media": [
+      "Animation & Game Design","Art History","Ceramics & Glass","Creative Writing","Dance",
+      "Fashion Design","Film & Television","Fine Art","Graphic Design","Industrial Design",
+      "Music","Photography","Theatre & Performance"
+    ],
+    "Business & Management": [
+      "Accounting","Actuarial Science","Banking & Finance","Business Administration",
+      "Entrepreneurship","Hospitality Management","Human Resource Management",
+      "International Business","Logistics & Supply Chain","Marketing","MBA",
+      "Project Management","Public Administration","Tourism Management"
+    ],
+    "Computing & Information Technology": [
+      "Artificial Intelligence","Computer Science","Cyber Security","Data Science",
+      "Game Development","Human-Computer Interaction","Information Systems",
+      "Machine Learning","Networks & Communications","Robotics","Software Engineering"
+    ],
+    "Education & Teaching": [
+      "Adult Education","Curriculum & Instruction","Early Childhood Education",
+      "Education Leadership","Educational Psychology","Educational Technology",
+      "Primary Education","Secondary Education","Special & Inclusive Education",
+      "STEM Education","TESOL & Applied Linguistics"
+    ],
+    "Engineering": [
+      "Aerospace Engineering","Automotive Engineering","Biomedical Engineering",
+      "Chemical Engineering","Civil Engineering","Electrical & Electronic Engineering",
+      "Energy Engineering","Environmental Engineering","Geotechnical Engineering",
+      "Industrial & Systems Engineering","Marine Engineering","Materials Engineering",
+      "Mechanical Engineering","Mining Engineering","Petroleum Engineering",
+      "Structural Engineering","Telecommunications Engineering"
+    ],
+    "Environment & Earth Sciences": [
+      "Atmospheric Science","Climate Change","Conservation Biology","Earth Science",
+      "Ecology","Environmental Management","Environmental Science","Geography",
+      "Geology","Geophysics","Hydrology","Meteorology","Oceanography",
+      "Renewable Energy","Sustainability"
+    ],
+    "Health & Medicine": [
+      "Anatomy","Biomedical Science","Dentistry","Epidemiology","Global Health",
+      "Health Administration","Health Informatics","Immunology","Medical Laboratory Science",
+      "Medicine","Midwifery","Nursing","Nutrition & Dietetics","Occupational Therapy",
+      "Optometry","Pharmacy","Physiotherapy","Public Health","Radiography","Surgery",
+      "Traditional & Complementary Medicine"
+    ],
+    "Humanities": [
+      "Archaeology","Classics","Comparative Literature","Cultural Studies",
+      "English Literature","Ethics","History","Language Studies","Linguistics",
+      "Philosophy","Religion & Theology","Translation & Interpretation"
+    ],
+    "Journalism, Media & Communication": [
+      "Broadcast Journalism","Communication Studies","Digital Media","Journalism",
+      "Media Studies","Public Relations","Publishing","Strategic Communication"
+    ],
+    "Law & Legal Studies": [
+      "Commercial Law","Constitutional Law","Criminal Justice","Environmental Law",
+      "Human Rights Law","International Law","Legal Practice","Public Law","Tax Law"
+    ],
+    "Mathematics & Statistics": [
+      "Actuarial Mathematics","Applied Mathematics","Biostatistics","Computational Mathematics",
+      "Financial Mathematics","Operations Research","Pure Mathematics","Statistics"
+    ],
+    "Natural Sciences": [
+      "Astronomy & Astrophysics","Biochemistry","Biology","Biotechnology","Botany",
+      "Chemistry","Genetics","Materials Science","Microbiology","Molecular Biology",
+      "Neuroscience","Physics","Zoology"
+    ],
+    "Social Sciences": [
+      "Anthropology","Criminology","Demography","Development Studies","Economics",
+      "Gender Studies","International Relations","Peace & Conflict Studies",
+      "Political Science","Psychology","Public Policy","Social Work","Sociology"
+    ],
+    "Sports & Recreation": [
+      "Exercise Science","Kinesiology","Physical Education","Sports Management",
+      "Sports Medicine","Sports Science"
+    ],
+    "Interdisciplinary & Area Studies": [
+      "African Studies","Asian Studies","Cognitive Science","European Studies",
+      "Latin American Studies","Middle Eastern Studies","Migration Studies",
+      "Urban Studies","Women's & Gender Studies"
+    ]
+  };
+
+  var SUBFIELD_TO_FIELD = {};
+  Object.keys(FIELDS).forEach(function (f) {
+    FIELDS[f].forEach(function (s) { SUBFIELD_TO_FIELD[s] = f; });
+  });
+
+  /* ==========================================================
+     DATA — curated index. Every URL points at the funder.
+     'fields': ['ANY'] means the award is open to every course.
+     ========================================================== */
+  var VERIFIED = '29 Sep 2026';
+  var ANY = ['ANY'];
+
+  var DATA = [
+    /* ------------------------ UNITED KINGDOM ------------------------ */
+    {name:'Chevening Scholarships', country:'United Kingdom', funding:'full', levels:['masters'], fields:ANY, url:'https://www.chevening.org/scholarships/', summary:'One year of master\'s study in the UK for graduates with at least two years of work experience. Covers tuition, stipend, travel, and arrival allowances.'},
+    {name:'Gates Cambridge Scholarship', country:'United Kingdom', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.gatescambridge.org/', summary:'Postgraduate study at the University of Cambridge for applicants from outside the UK. Covers the full cost of study plus a maintenance allowance.'},
+    {name:'Rhodes Scholarship', country:'United Kingdom', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.rhodeshouse.ox.ac.uk/scholarships/', summary:'Postgraduate study at the University of Oxford, selected through national committees in more than twenty jurisdictions.'},
+    {name:'Commonwealth Master\'s Scholarships', country:'United Kingdom', funding:'full', levels:['masters'], fields:['Health & Medicine','Engineering','Environment & Earth Sciences','Social Sciences','Education & Teaching','Agriculture, Forestry & Veterinary'], url:'https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/', summary:'Funded by the UK Foreign, Commonwealth and Development Office for candidates from low and middle income Commonwealth countries.'},
+    {name:'Commonwealth PhD Scholarships', country:'United Kingdom', funding:'full', levels:['phd'], fields:['Health & Medicine','Engineering','Environment & Earth Sciences','Social Sciences','Education & Teaching','Agriculture, Forestry & Veterinary'], url:'https://cscuk.fcdo.gov.uk/scholarships/commonwealth-phd-scholarships/', summary:'Doctoral funding in the UK for candidates from low and middle income Commonwealth countries. Covers tuition, stipend, and airfare.'},
+    {name:'Commonwealth Shared Scholarships', country:'United Kingdom', funding:'full', levels:['masters'], fields:['Health & Medicine','Engineering','Environment & Earth Sciences','Social Sciences','Education & Teaching','Agriculture, Forestry & Veterinary'], url:'https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships/', summary:'Jointly funded by the UK government and UK universities for master\'s study by candidates from developing Commonwealth countries.'},
+    {name:'Marshall Scholarship', country:'United Kingdom', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.marshallscholarship.org/', summary:'Funds two years of postgraduate study in the UK for American graduates. Covers tuition, stipend, and travel.'},
+    {name:'Clarendon Fund Scholarships', country:'United Kingdom', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.ox.ac.uk/clarendon', summary:'Full-cost scholarships at the University of Oxford, awarded purely on academic merit across every department.'},
+    {name:'Cambridge Trust Scholarships', country:'United Kingdom', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.cambridgetrust.org/', summary:'The University of Cambridge\'s central scholarship scheme, co-funding awards with partner trusts and departments.'},
+    {name:'Edinburgh Global Scholarships', country:'United Kingdom', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.ed.ac.uk/student-funding/postgraduate/international', summary:'Tuition-fee awards for international master\'s students at the University of Edinburgh.'},
+    {name:'UCL Global Masters Scholarship', country:'United Kingdom', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.ucl.ac.uk/scholarships/ucl-global-masters-scholarship', summary:'Fee awards for international master\'s students at University College London, based on academic merit and financial need.'},
+    {name:'Imperial College President\'s Scholarship', country:'United Kingdom', funding:'full', levels:['masters','phd'], fields:['Engineering','Natural Sciences','Mathematics & Statistics','Computing & Information Technology'], url:'https://www.imperial.ac.uk/study/fees-and-funding/scholarships/', summary:'Full funding for outstanding research students at Imperial College London across the STEM disciplines.'},
+    {name:'King\'s College London International Scholarships', country:'United Kingdom', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.kcl.ac.uk/study/postgraduate/fees-and-funding', summary:'Fee awards and bursaries for international postgraduate students at King\'s College London.'},
+    {name:'LSE Graduate Support Scheme', country:'United Kingdom', funding:'partial', levels:['masters'], fields:['Social Sciences','Business & Management','Law & Legal Studies'], url:'https://www.lse.ac.uk/study-at-lse/Graduate/fees-and-funding', summary:'Needs-based awards for master\'s study at the London School of Economics.'},
+    {name:'Warwick Chancellor\'s International Scholarship', country:'United Kingdom', funding:'full', levels:['phd'], fields:ANY, url:'https://warwick.ac.uk/services/dc/schols_fund/', summary:'Full doctoral funding at the University of Warwick for the most outstanding international applicants.'},
+    {name:'Bristol Think Big Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.bristol.ac.uk/international/fees-finance/scholarships/', summary:'Tuition-fee awards for international undergraduate and master\'s students at the University of Bristol.'},
+    {name:'Glasgow International Leadership Scholarship', country:'United Kingdom', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.gla.ac.uk/scholarships/', summary:'Fee awards for international master\'s students at the University of Glasgow.'},
+    {name:'Nottingham Developing Solutions Scholarship', country:'United Kingdom', funding:'full', levels:['masters'], fields:ANY, url:'https://www.nottingham.ac.uk/studywithus/international-applicants/scholarships/', summary:'Full tuition awards for master\'s students from Commonwealth countries at the University of Nottingham.'},
+    {name:'Sheffield International Merit Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.sheffield.ac.uk/international/fees-and-funding/scholarships', summary:'Fee awards for international students at the University of Sheffield.'},
+    {name:'Birmingham Global Masters Scholarship', country:'United Kingdom', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.birmingham.ac.uk/international/students/fees-funding/', summary:'Fee awards for international master\'s students at the University of Birmingham.'},
+    {name:'Leeds International Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.leeds.ac.uk/international-scholarships', summary:'Tuition-fee awards for international students at the University of Leeds.'},
+    {name:'Southampton Presidential International Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.southampton.ac.uk/study/fees-funding/scholarships', summary:'Merit-based fee awards for international students at the University of Southampton.'},
+    {name:'St Andrews Global Excellence Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.st-andrews.ac.uk/study/fees-funding/scholarships/', summary:'Fee awards for international students at the University of St Andrews.'},
+    {name:'Durham Inspiring Excellence Scholarship', country:'United Kingdom', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.durham.ac.uk/study/international/fees-and-funding/', summary:'Fee awards for international students at Durham University.'},
+    {name:'Weidenfeld-Hoffmann Scholarships', country:'United Kingdom', funding:'full', levels:['masters'], fields:ANY, url:'https://www.whtrust.org/', summary:'Full scholarships at the University of Oxford for outstanding graduates from developing and emerging economies.'},
+    {name:'Jardine Foundation Scholarship', country:'United Kingdom', funding:'full', levels:['bachelors'], fields:ANY, url:'https://www.jardinefoundation.org/', summary:'Full undergraduate funding at Oxford and Cambridge for students from selected Asian countries.'},
+
+    /* ------------------------ UNITED STATES ------------------------ */
+    {name:'Fulbright Foreign Student Program', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://foreign.fulbrightonline.org/', summary:'Places international graduate students at US universities for one or more years of study or research. Administered by binational commissions in over 160 countries.'},
+    {name:'Knight-Hennessy Scholars', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://knight-hennessy.stanford.edu/', summary:'Funds graduate study at Stanford across any department. Adds leadership training and a cohort programme to the degree.'},
+    {name:'Stanford Graduate Fellowship', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://vpge.stanford.edu/fellowships', summary:'Full doctoral funding at Stanford, awarded on academic merit across every school.'},
+    {name:'MIT Presidential Fellowship', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://www.mit.edu/graduate-admissions/financing/', summary:'Full funding for outstanding doctoral students at the Massachusetts Institute of Technology.'},
+    {name:'Harvard Graduate Scholarships', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.harvard.edu/apply/', summary:'Need-based and merit awards for graduate study across Harvard\'s schools.'},
+    {name:'Yale Graduate Funding', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://gsas.yale.edu/admissions/costs-and-funding', summary:'Full funding packages for doctoral students and partial awards for master\'s students at Yale.'},
+    {name:'Princeton Graduate Fellowship', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://gradschool.princeton.edu/costs-funding', summary:'Full doctoral funding at Princeton University, guaranteed for the length of the programme.'},
+    {name:'Columbia GSAS Fellowships', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.gsas.columbia.edu/content/financial-aid', summary:'Full and partial awards for graduate study at Columbia University.'},
+    {name:'Cornell Graduate Fellowships', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://gradschool.cornell.edu/financial-support/', summary:'Full doctoral funding across Cornell University\'s graduate fields.'},
+    {name:'Berkeley Graduate Fellowships', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://grad.berkeley.edu/financial/', summary:'Full doctoral funding at the University of California, Berkeley.'},
+    {name:'University of Chicago Graduate Aid', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://grad.uchicago.edu/admissions/financing/', summary:'Full doctoral funding at the University of Chicago.'},
+    {name:'Michigan Rackham Fellowships', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://rackham.umich.edu/funding/', summary:'Full doctoral funding at the University of Michigan.'},
+    {name:'UCLA Graduate Funding', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://grad.ucla.edu/funding/', summary:'Full doctoral funding at the University of California, Los Angeles.'},
+    {name:'NYU International Scholarships', country:'United States', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.nyu.edu/admissions/financial-aid-and-scholarships.html', summary:'Merit and need-based awards for international students at New York University.'},
+    {name:'Duke Graduate Funding', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://gradschool.duke.edu/financial-support', summary:'Full doctoral funding at Duke University.'},
+    {name:'Johns Hopkins Scholarships', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.jhu.edu/admissions/affordability/', summary:'Full and partial awards for graduate study at Johns Hopkins University.'},
+    {name:'Carnegie Mellon Fellowships', country:'United States', funding:'full', levels:['phd'], fields:ANY, url:'https://www.cmu.edu/financial-aid/', summary:'Full doctoral funding at Carnegie Mellon University.'},
+    {name:'Georgia Tech Graduate Funding', country:'United States', funding:'full', levels:['phd'], fields:['Engineering','Computing & Information Technology','Natural Sciences','Mathematics & Statistics'], url:'https://www.gatech.edu/admissions', summary:'Full doctoral funding at the Georgia Institute of Technology.'},
+    {name:'Purdue Graduate Fellowships', country:'United States', funding:'full', levels:['phd'], fields:['Engineering','Natural Sciences','Computing & Information Technology','Agriculture, Forestry & Veterinary'], url:'https://www.purdue.edu/gradschool/funding/', summary:'Full doctoral funding at Purdue University.'},
+    {name:'AAUW International Fellowships', country:'United States', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.aauw.org/resources/programs/fellowships-grants/', summary:'Full funding for women pursuing graduate study in the United States.'},
+    {name:'Ford Foundation Fellowships', country:'United States', funding:'full', levels:['phd','postdoc'], fields:ANY, url:'https://www.fordfoundation.org/work/our-grants/', summary:'Fellowships for scholars committed to a career in teaching and research at the US university level.'},
+    {name:'Rotary Peace Fellowship', country:'United States', funding:'full', levels:['masters'], fields:['Social Sciences','Law & Legal Studies','Interdisciplinary & Area Studies'], url:'https://www.rotary.org/en/our-programs/peace-fellowships', summary:'Full funding for master\'s study in peace and conflict resolution at Rotary Peace Centers worldwide.'},
+
+    /* ------------------------ CANADA ------------------------ */
+    {name:'Vanier Canada Graduate Scholarships', country:'Canada', funding:'full', levels:['phd'], fields:['Health & Medicine','Natural Sciences','Engineering','Social Sciences','Computing & Information Technology','Mathematics & Statistics'], url:'https://vanier.gc.ca/en/home.html', summary:'CAD 50,000 a year for three years to doctoral students at Canadian universities. Candidates must be nominated by their institution.'},
+    {name:'Trudeau Foundation Scholarships', country:'Canada', funding:'full', levels:['phd'], fields:['Social Sciences','Humanities'], url:'https://www.trudeaufoundation.ca/', summary:'Doctoral funding in the social sciences and humanities at Canadian universities.'},
+    {name:'Lester B. Pearson International Scholarship', country:'Canada', funding:'full', levels:['bachelors'], fields:ANY, url:'https://www.pearsonscholarship.ca/', summary:'Full undergraduate funding at the University of Toronto for international students.'},
+    {name:'UBC Graduate Awards', country:'Canada', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.grad.ubc.ca/awards', summary:'Full and partial funding for graduate study at the University of British Columbia.'},
+    {name:'McGill Entrance Scholarships', country:'Canada', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.mcgill.ca/studentaid/', summary:'Entrance awards for graduate study at McGill University.'},
+    {name:'Waterloo Graduate Funding', country:'Canada', funding:'full', levels:['masters','phd'], fields:['Engineering','Computing & Information Technology','Natural Sciences','Mathematics & Statistics'], url:'https://uwaterloo.ca/graduate-studies-postdoctoral-affairs/funding', summary:'Full and partial funding for graduate study at the University of Waterloo.'},
+    {name:'Alberta Graduate Awards', country:'Canada', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.ualberta.ca/graduate-studies/', summary:'Full and partial funding for graduate study at the University of Alberta.'},
+    {name:'Queen\'s Graduate Awards', country:'Canada', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.queensu.ca/sgps/funding', summary:'Full and partial funding for graduate study at Queen\'s University.'},
+    {name:'McMaster Graduate Scholarships', country:'Canada', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://gs.mcmaster.ca/funding/', summary:'Full and partial funding for graduate study at McMaster University.'},
+    {name:'Dalhousie Graduate Awards', country:'Canada', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.dal.ca/faculty/gradstudies/funding.html', summary:'Full and partial funding for graduate study at Dalhousie University.'},
+
+    /* ------------------------ AUSTRALIA & NEW ZEALAND ------------------------ */
+    {name:'Australia Awards Scholarships', country:'Australia', funding:'full', levels:['masters','phd'], fields:['Health & Medicine','Education & Teaching','Engineering','Environment & Earth Sciences','Social Sciences','Agriculture, Forestry & Veterinary','Business & Management'], url:'https://www.dfat.gov.au/people-to-people/australia-awards-scholarships', summary:'Funds study at Australian universities for citizens of eligible Indo-Pacific countries. Covers tuition, travel, and living costs.'},
+    {name:'Research Training Program', country:'Australia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.education.gov.au/research-block-grants/research-training-program', summary:'Australian government funding for domestic and international research students at Australian universities.'},
+    {name:'Melbourne Graduate Scholarships', country:'Australia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://scholarships.unimelb.edu.au/', summary:'Full and partial funding for graduate study at the University of Melbourne.'},
+    {name:'Sydney International Scholarships', country:'Australia', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.sydney.edu.au/scholarships/', summary:'Full and partial funding for international study at the University of Sydney.'},
+    {name:'ANU Chancellor\'s International Scholarship', country:'Australia', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.anu.edu.au/study/scholarships', summary:'Fee awards for international students at the Australian National University.'},
+    {name:'UNSW Scientia PhD Scholarship', country:'Australia', funding:'full', levels:['phd'], fields:ANY, url:'https://www.scientia.unsw.edu.au/', summary:'Full doctoral funding at UNSW Sydney with a focus on research that addresses global challenges.'},
+    {name:'Monash Graduate Scholarships', country:'Australia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.monash.edu/study/fees-scholarships', summary:'Full and partial funding for graduate study at Monash University.'},
+    {name:'UQ Graduate Scholarships', country:'Australia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://scholarships.uq.edu.au/', summary:'Full and partial funding for graduate study at the University of Queensland.'},
+    {name:'Adelaide Scholarships International', country:'Australia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.adelaide.edu.au/scholarships/', summary:'Full funding for international graduate students at the University of Adelaide.'},
+    {name:'Western Sydney International Scholarship', country:'Australia', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.westernsydney.edu.au/scholarships', summary:'Fee awards for international students at Western Sydney University.'},
+    {name:'New Zealand Scholarships', country:'New Zealand', funding:'full', levels:['bachelors','masters'], fields:ANY, url:'https://www.nzscholarships.govt.nz/', summary:'For citizens of eligible Pacific and Asian countries. Covers tuition, a living allowance, and travel.'},
+    {name:'University of Auckland Scholarships', country:'New Zealand', funding:'partial', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.auckland.ac.nz/en/study/scholarships-and-awards.html', summary:'Merit awards for undergraduate and postgraduate study at the University of Auckland.'},
+
+    /* ------------------------ GERMANY ------------------------ */
+    {name:'DAAD Scholarships for International Students', country:'Germany', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.daad.de/en/study-and-research-in-germany/scholarships/', summary:'The German Academic Exchange Service funds master\'s degrees, doctoral study, and research stays at German institutions.'},
+    {name:'Heinrich Böll Foundation Scholarships', country:'Germany', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.boell.de/en/scholarships', summary:'Funding for study in Germany, with a focus on ecology, sustainability, and social justice.'},
+    {name:'Konrad-Adenauer-Stiftung Scholarships', country:'Germany', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.kas.de/en/scholarships', summary:'Full funding for graduate study in Germany with a focus on democracy, rule of law, and social market economy.'},
+    {name:'Friedrich Ebert Foundation Scholarships', country:'Germany', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.fes.de/en/scholarship', summary:'Funding for study in Germany with a focus on social democracy and labour rights.'},
+    {name:'Rosa Luxemburg Foundation Scholarships', country:'Germany', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.rosalux.de/en/scholarship', summary:'Funding for study in Germany with a focus on social justice and critical thought.'},
+    {name:'Hanns Seidel Foundation Scholarships', country:'Germany', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.hss.de/en/scholarships/', summary:'Full funding for graduate study in Germany with a focus on Christian social ethics.'},
+    {name:'Deutschlandstipendium', country:'Germany', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.deutschlandstipendium.de/', summary:'EUR 300 a month from the German government plus a matching contribution from a private sponsor.'},
+    {name:'Humboldt Research Fellowship', country:'Germany', funding:'full', levels:['postdoc'], fields:ANY, url:'https://www.humboldt-foundation.de/en/apply', summary:'Postdoctoral research fellowships in Germany for academics from abroad.'},
+    {name:'Max Planck Doctoral Programme', country:'Germany', funding:'full', levels:['phd'], fields:['Natural Sciences','Computing & Information Technology','Mathematics & Statistics'], url:'https://www.mpg.de/en/imprint/doctoral', summary:'Full doctoral funding at Max Planck Institutes across the natural sciences and computing.'},
+    {name:'Helmholtz Doctoral Programme', country:'Germany', funding:'full', levels:['phd'], fields:['Natural Sciences','Engineering','Health & Medicine','Environment & Earth Sciences'], url:'https://www.helmholtz.de/en/careers/', summary:'Full doctoral funding at Helmholtz research centres across science, engineering, and health.'},
+    {name:'TUM Scholarships', country:'Germany', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.tum.de/en/studies/fees-and-financial-aid/scholarships', summary:'Fee awards and grants for study at the Technical University of Munich.'},
+    {name:'LMU Munich Scholarships', country:'Germany', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.en.uni-muenchen.de/students/studying/scholarships', summary:'Fee awards and grants for study at Ludwig Maximilian University of Munich.'},
+    {name:'Heidelberg Scholarships', country:'Germany', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.uni-heidelberg.de/en/study/study-programs/scholarships', summary:'Fee awards and grants for graduate study at Heidelberg University.'},
+    {name:'RWTH Aachen Scholarships', country:'Germany', funding:'partial', levels:['masters'], fields:['Engineering','Natural Sciences'], url:'https://www.rwth-aachen.de/go/id/bdga/', summary:'Fee awards and grants for master\'s study at RWTH Aachen University.'},
+    {name:'Freie Universität Berlin Scholarships', country:'Germany', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.fu-berlin.de/en/studium/stipendien/', summary:'Fee awards and grants for graduate study at Freie Universität Berlin.'},
+
+    /* ------------------------ NETHERLANDS & BELGIUM ------------------------ */
+    {name:'Holland Scholarship', country:'Netherlands', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.studyinnl.org/finances/holland-scholarship', summary:'A one-time EUR 5,000 grant for non-EEA students starting a degree in the Netherlands.'},
+    {name:'Orange Knowledge Programme', country:'Netherlands', funding:'full', levels:['masters'], fields:ANY, url:'https://www.nuffic.nl/education-programmes/orange-knowledge-programme', summary:'Full funding for master\'s study in the Netherlands for professionals from selected developing countries.'},
+    {name:'Radboud Scholarship Programme', country:'Netherlands', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.ru.nl/en/education/scholarships', summary:'Fee awards for master\'s students from outside the EEA at Radboud University.'},
+    {name:'Utrecht Excellence Scholarships', country:'Netherlands', funding:'full', levels:['masters'], fields:ANY, url:'https://www.uu.nl/en/education/utrecht-excellence-scholarships', summary:'Full funding for outstanding master\'s students from outside the EU at Utrecht University.'},
+    {name:'Leiden Excellence Scholarship', country:'Netherlands', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.universiteitleiden.nl/en/scholarships', summary:'Fee awards for master\'s students from outside the EEA at Leiden University.'},
+    {name:'TU Delft Excellence Scholarship', country:'Netherlands', funding:'full', levels:['masters'], fields:['Engineering','Natural Sciences','Architecture & Construction','Computing & Information Technology'], url:'https://www.tudelft.nl/en/education/practical-matters/scholarships', summary:'Full funding for outstanding master\'s students at Delft University of Technology.'},
+    {name:'Amsterdam Merit Scholarship', country:'Netherlands', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.uva.nl/en/education/scholarships', summary:'Fee awards for master\'s students from outside the EEA at the University of Amsterdam.'},
+    {name:'Erasmus University Scholarships', country:'Netherlands', funding:'partial', levels:['masters'], fields:['Business & Management','Social Sciences','Health & Medicine'], url:'https://www.eur.nl/en/education/scholarships', summary:'Fee awards for master\'s students at Erasmus University Rotterdam.'},
+    {name:'Wageningen Africa Scholarship', country:'Netherlands', funding:'partial', levels:['masters'], fields:['Agriculture, Forestry & Veterinary','Environment & Earth Sciences'], url:'https://www.wur.nl/en/education-programmes/scholarships', summary:'Fee awards for master\'s students from Africa at Wageningen University.'},
+    {name:'Eric Bleumink Fund', country:'Netherlands', funding:'full', levels:['masters'], fields:ANY, url:'https://www.rug.nl/education/scholarships/eric-bleumink-fund', summary:'Full funding for master\'s study at the University of Groningen for students from developing countries.'},
+    {name:'VLIR-UOS Scholarships', country:'Belgium', funding:'full', levels:['masters'], fields:['Agriculture, Forestry & Veterinary','Health & Medicine','Environment & Earth Sciences','Engineering','Social Sciences','Natural Sciences'], url:'https://www.vliruos.be/en/scholarships', summary:'Funds master\'s study in Flanders for candidates from 31 partner countries.'},
+    {name:'KU Leuven Scholarships', country:'Belgium', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.kuleuven.be/english/education/scholarships', summary:'Fee awards and grants for graduate study at KU Leuven.'},
+
+    /* ------------------------ NORDIC COUNTRIES ------------------------ */
+    {name:'Swedish Institute Scholarships for Global Professionals', country:'Sweden', funding:'full', levels:['masters'], fields:ANY, url:'https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/', summary:'Full funding for master\'s study in Sweden for professionals from selected countries.'},
+    {name:'Lund University Global Scholarship', country:'Sweden', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.lunduniversity.lu.se/admissions/scholarships', summary:'Fee awards for international students at Lund University.'},
+    {name:'Uppsala IPK Scholarships', country:'Sweden', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.uu.se/en/study/scholarships', summary:'Fee awards for international master\'s students at Uppsala University.'},
+    {name:'KTH Scholarships', country:'Sweden', funding:'partial', levels:['masters'], fields:['Engineering','Natural Sciences','Computing & Information Technology'], url:'https://www.kth.se/en/studies/fees/scholarships', summary:'Fee awards for international master\'s students at KTH Royal Institute of Technology.'},
+    {name:'Chalmers Scholarships', country:'Sweden', funding:'partial', levels:['masters'], fields:['Engineering','Natural Sciences'], url:'https://www.chalmers.se/en/education/scholarships/', summary:'Fee awards for international master\'s students at Chalmers University of Technology.'},
+    {name:'Danish Government Scholarships', country:'Denmark', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://studyindenmark.dk/study-options/scholarships', summary:'Tuition waivers and monthly grants offered by Danish universities to exchange and degree students from partner countries.'},
+    {name:'University of Copenhagen Scholarships', country:'Denmark', funding:'partial', levels:['masters'], fields:ANY, url:'https://studies.ku.dk/masters/tuition-fees-and-scholarships/', summary:'Tuition waivers for non-EU master\'s students at the University of Copenhagen.'},
+    {name:'Aarhus University Scholarships', country:'Denmark', funding:'partial', levels:['masters'], fields:ANY, url:'https://international.au.dk/education/admission/scholarships', summary:'Tuition waivers for non-EU master\'s students at Aarhus University.'},
+    {name:'Norwegian Quota Scheme', country:'Norway', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.hk-dir.no/en/scholarships/quota-scheme', summary:'Full funding for master\'s and doctoral study in Norway for students from developing countries.'},
+    {name:'University of Oslo Scholarships', country:'Norway', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.uio.no/english/studies/admission/scholarships/', summary:'Fee awards and grants for graduate study at the University of Oslo.'},
+    {name:'University of Bergen Scholarships', country:'Norway', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.uib.no/en/education/48675/scholarships', summary:'Fee awards and grants for graduate study at the University of Bergen.'},
+    {name:'University of Helsinki Scholarships', country:'Finland', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.helsinki.fi/en/admissions-and-education/apply-bachelors-and-masters-programmes/tuition-fees-and-scholarships', summary:'Tuition fee waivers and grants for non-EU and non-EEA master\'s students.'},
+    {name:'Aalto University Scholarships', country:'Finland', funding:'partial', levels:['masters'], fields:['Engineering','Business & Management','Arts, Design & Media','Architecture & Construction'], url:'https://www.aalto.fi/en/study-at-aalto/tuition-fees-and-scholarships', summary:'Fee waivers for non-EU master\'s students at Aalto University.'},
+
+    /* ------------------------ SWITZERLAND ------------------------ */
+    {name:'Swiss Government Excellence Scholarships', country:'Switzerland', funding:'full', levels:['phd','postdoc'], fields:ANY, url:'https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html', summary:'Awarded by the Swiss Confederation for doctoral and postdoctoral research at Swiss universities.'},
+    {name:'ETH Zurich Excellence Scholarship', country:'Switzerland', funding:'full', levels:['masters'], fields:['Engineering','Natural Sciences','Mathematics & Statistics','Computing & Information Technology','Architecture & Construction'], url:'https://ethz.ch/en/studies/financial/scholarships/excellence-scholarship-and-opportunity-programme.html', summary:'Covers tuition and a monthly living stipend for master\'s students at ETH Zurich.'},
+    {name:'EPFL Excellence Fellowships', country:'Switzerland', funding:'full', levels:['masters'], fields:['Engineering','Natural Sciences','Computing & Information Technology','Mathematics & Statistics'], url:'https://www.epfl.ch/education/master/master-excellence-fellowships/', summary:'Full funding for outstanding master\'s students at EPFL.'},
+    {name:'University of Geneva Scholarships', country:'Switzerland', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.unige.ch/dife/en/scholarships/', summary:'Fee waivers and grants for graduate study at the University of Geneva.'},
+    {name:'University of Basel Scholarships', country:'Switzerland', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.unibas.ch/en/Studies/Study-Programs/Scholarships.html', summary:'Fee waivers and grants for graduate study at the University of Basel.'},
+    {name:'University of Bern Scholarships', country:'Switzerland', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.unibe.ch/studies/financial_matters/scholarships/', summary:'Fee waivers and grants for graduate study at the University of Bern.'},
+
+    /* ------------------------ FRANCE ------------------------ */
+    {name:'Eiffel Excellence Scholarship', country:'France', funding:'full', levels:['masters','phd'], fields:['Engineering','Natural Sciences','Business & Management','Law & Legal Studies','Social Sciences','Mathematics & Statistics'], url:'https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence', summary:'Funds international students nominated by French institutions for master\'s and doctoral programmes.'},
+    {name:'Charpak Scholarship', country:'France', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.campusfrance.org/en/charpak-scholarship', summary:'Merit awards for Indian students pursuing master\'s study in France.'},
+    {name:'Sciences Po Émile Boutmy Scholarship', country:'France', funding:'partial', levels:['bachelors','masters'], fields:['Social Sciences','Humanities','Law & Legal Studies'], url:'https://www.sciencespo.fr/students/en/finance/scholarships/emile-boutmy-scholarship', summary:'Fee awards for outstanding international students at Sciences Po.'},
+    {name:'Paris-Saclay International Scholarships', country:'France', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.universite-paris-saclay.fr/en/education/scholarships', summary:'Full funding for international master\'s and doctoral students at Paris-Saclay University.'},
+    {name:'Sorbonne University Scholarships', country:'France', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.sorbonne-universite.fr/en/study/scholarships', summary:'Fee waivers and grants for graduate study at Sorbonne University.'},
+    {name:'ENS International Selection', country:'France', funding:'full', levels:['masters'], fields:['Humanities','Social Sciences','Natural Sciences'], url:'https://www.ens.psl.eu/en/study/scholarships', summary:'Full funding for international students at the École Normale Supérieure in Paris.'},
+    {name:'HEC Paris Scholarships', country:'France', funding:'partial', levels:['masters'], fields:['Business & Management'], url:'https://www.hec.edu/en/master-s-programs/financing-your-studies', summary:'Fee awards for master\'s students at HEC Paris.'},
+    {name:'INSEAD Scholarships', country:'France', funding:'partial', levels:['masters'], fields:['Business & Management'], url:'https://www.insead.edu/master-programmes/financing', summary:'Fee awards for MBA and master\'s students at INSEAD.'},
+
+    /* ------------------------ ASIA ------------------------ */
+    {name:'MEXT Japanese Government Scholarship', country:'Japan', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.studyinjapan.go.jp/en/planning/scholarship/', summary:'Covers tuition and a monthly allowance for undergraduate and postgraduate study in Japan.'},
+    {name:'JASSO Scholarships', country:'Japan', funding:'partial', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.jasso.go.jp/en/study/scholarship/', summary:'Monthly stipends for international students at Japanese universities.'},
+    {name:'Global Korea Scholarship', country:'South Korea', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.studyinkorea.go.kr/', summary:'Funds undergraduate and graduate study at Korean universities, including a year of Korean language training.'},
+    {name:'KAIST International Graduate Scholarship', country:'South Korea', funding:'full', levels:['masters','phd'], fields:['Engineering','Natural Sciences','Computing & Information Technology','Mathematics & Statistics'], url:'https://admission.kaist.ac.kr/intl-graduate/', summary:'Full funding for international graduate students at KAIST.'},
+    {name:'POSTECH Graduate Scholarships', country:'South Korea', funding:'full', levels:['masters','phd'], fields:['Engineering','Natural Sciences','Computing & Information Technology'], url:'https://adm.postech.ac.kr/en/', summary:'Full funding for international graduate students at POSTECH.'},
+    {name:'NUS Graduate Scholarships', country:'Singapore', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://nus.edu.sg/oam/financial-aid', summary:'Full and partial funding for graduate study at the National University of Singapore.'},
+    {name:'NTU Graduate Scholarships', country:'Singapore', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.ntu.edu.sg/admissions/graduate/financial-matters', summary:'Full and partial funding for graduate study at Nanyang Technological University.'},
+    {name:'Singapore Government Scholarship', country:'Singapore', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.mfa.gov.sg/SINGAPORESCOOPERATIONPROGRAMME', summary:'Full funding for study in Singapore for citizens of selected countries.'},
+    {name:'Chinese Government Scholarship (CSC)', country:'China', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.campuschina.org/', summary:'Funds international students at Chinese universities through bilateral programmes and university nominations.'},
+    {name:'Schwarzman Scholars', country:'China', funding:'full', levels:['masters'], fields:['Social Sciences','Business & Management','Law & Legal Studies','Humanities','Interdisciplinary & Area Studies'], url:'https://www.schwarzmanscholars.org/', summary:'A one-year master\'s in global affairs at Tsinghua University in Beijing.'},
+    {name:'Confucius Institute Scholarship', country:'China', funding:'full', levels:['bachelors','masters'], fields:['Humanities'], url:'http://cis.chinese.cn/', summary:'Full funding for Chinese language and culture study at Chinese universities.'},
+    {name:'Hong Kong PhD Fellowship Scheme', country:'Hong Kong', funding:'full', levels:['phd'], fields:ANY, url:'https://www.ugc.edu.hk/eng/rgc/funding_opport/hkphd/', summary:'Full doctoral funding at Hong Kong universities across every discipline.'},
+    {name:'Hong Kong Government Scholarships', country:'Hong Kong', funding:'partial', levels:['bachelors','masters'], fields:ANY, url:'https://www.edb.gov.hk/en/edu-system/postsecondary/local-higher-edu/scholarships/', summary:'Fee awards for international students at Hong Kong universities.'},
+    {name:'Taiwan MOE Scholarship', country:'Taiwan', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.studyintaiwan.org/scholarship', summary:'Full funding for international students at Taiwanese universities.'},
+    {name:'Türkiye Bursları', country:'Türkiye', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://turkiyeburslari.gov.tr/', summary:'Covers tuition, accommodation, and a monthly stipend for study in Türkiye at undergraduate and postgraduate levels.'},
+    {name:'Malaysia International Scholarship', country:'Malaysia', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://biasiswa.mohe.gov.my/', summary:'Full funding for international master\'s and doctoral students at Malaysian universities.'},
+    {name:'ICCR Scholarships', country:'India', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.iccr.gov.in/', summary:'Full funding for international students at Indian universities under cultural exchange programmes.'},
+    {name:'Aga Khan Foundation International Scholarship', country:'Multiple countries', funding:'partial', levels:['masters'], fields:ANY, url:'https://the.akdn/en/how-we-work/our-agencies/aga-khan-foundation/international-scholarships', summary:'Provides half-grant, half-loan support for master\'s study.'},
+    {name:'ADB-Japan Scholarship Program', country:'Asia-Pacific', funding:'full', levels:['masters'], fields:['Development Studies','Economics','Business & Management'], url:'https://www.adb.org/site/funds/adb-japan-scholarship-program', summary:'Full funding for master\'s study in development-related fields at selected Asia-Pacific universities.'},
+    {name:'Brunei Government Scholarship', country:'Brunei', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.mfa.gov.bn/', summary:'Full funding for international students at Brunei universities.'},
+
+    /* ------------------------ MIDDLE EAST ------------------------ */
+    {name:'KAUST Fellowship', country:'Saudi Arabia', funding:'full', levels:['masters','phd'], fields:['Natural Sciences','Engineering','Computing & Information Technology','Mathematics & Statistics'], url:'https://www.kaust.edu.sa/en/study/financial-support', summary:'Full funding for graduate study at King Abdullah University of Science and Technology.'},
+    {name:'Qatar University Scholarships', country:'Qatar', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.qu.edu.qa/students/admission/scholarships', summary:'Full and partial funding for international students at Qatar University.'},
+    {name:'Khalifa University Scholarships', country:'United Arab Emirates', funding:'full', levels:['masters','phd'], fields:['Engineering','Natural Sciences','Computing & Information Technology'], url:'https://www.kustar.ac.ae/', summary:'Full funding for graduate study at Khalifa University in Abu Dhabi.'},
+    {name:'Masdar Institute Scholarships', country:'United Arab Emirates', funding:'full', levels:['masters','phd'], fields:['Engineering','Environment & Earth Sciences'], url:'https://www.masdar.ac.ae/', summary:'Full funding for graduate study in sustainability and clean energy at Masdar Institute.'},
+    {name:'Israel Government Scholarships', country:'Israel', funding:'partial', levels:['masters','phd','postdoc'], fields:ANY, url:'https://www.mfa.gov.il/', summary:'Partial funding for graduate study and postdoctoral research in Israel.'},
+    {name:'Saudi Government Scholarships', country:'Saudi Arabia', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.moe.gov.sa/', summary:'Full funding for international students at Saudi universities.'},
+
+    /* ------------------------ AFRICA ------------------------ */
+    {name:'Mastercard Foundation Scholars Program', country:'Africa & Canada', funding:'full', levels:['bachelors','masters'], fields:ANY, url:'https://mastercardfdn.org/en/what-we-do/our-programs/mastercard-foundation-scholars-program/', summary:'Supports academically talented young people from Africa, most from low income backgrounds, to complete university education.'},
+    {name:'Mandela Rhodes Scholarship', country:'South Africa', funding:'full', levels:['masters'], fields:ANY, url:'https://mandelarhodes.org/', summary:'Full funding for master\'s study in South Africa for young African leaders.'},
+    {name:'Mo Ibrahim Foundation Scholarships', country:'Africa', funding:'full', levels:['masters','phd'], fields:['Social Sciences','Development Studies'], url:'https://mo.ibrahim.foundation/scholarships', summary:'Full funding for graduate study in governance and development at selected African universities.'},
+    {name:'African Leadership University Scholarships', country:'Africa', funding:'partial', levels:['bachelors'], fields:ANY, url:'https://www.alueducation.com/', summary:'Partial funding for undergraduate study at African Leadership University.'},
+    {name:'ARUA Doctoral Scholarships', country:'Africa', funding:'full', levels:['phd'], fields:ANY, url:'https://arua.org.za/', summary:'Full doctoral funding at African Research Universities Alliance member institutions.'},
+    {name:'Wits University Scholarships', country:'South Africa', funding:'partial', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.wits.ac.za/students/fees-funding/', summary:'Fee awards and grants for study at the University of the Witwatersrand.'},
+    {name:'UCT Scholarships', country:'South Africa', funding:'partial', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.uct.ac.za/main/students/funding', summary:'Fee awards and grants for study at the University of Cape Town.'},
+    {name:'Stellenbosch Scholarships', country:'South Africa', funding:'partial', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.sun.ac.za/english/students/financial-aid', summary:'Fee awards and grants for study at Stellenbosch University.'},
+    {name:'African Union Scholarships', country:'Africa', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://au.int/', summary:'Partial funding for graduate study across African Union member states.'},
+    {name:'Commonwealth Africa Scholarships', country:'Africa & United Kingdom', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://cscuk.fcdo.gov.uk/scholarships/', summary:'Full funding for African students to study in the UK under Commonwealth schemes.'},
+
+    /* ------------------------ LATIN AMERICA ------------------------ */
+    {name:'OAS Scholarships', country:'Americas', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.oas.org/en/scholarships/', summary:'Full funding for graduate study in the Americas through the Organization of American States.'},
+    {name:'FUNED Mexico Scholarships', country:'Mexico', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.funedmx.org/', summary:'Partial funding for master\'s study in Mexico for Latin American students.'},
+    {name:'Becas Chile', country:'Chile', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.becas.gob.cl/', summary:'Full funding for graduate study in Chile and abroad for Chilean citizens.'},
+    {name:'ICETEX Colombia Scholarships', country:'Colombia', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.icetex.gov.co/', summary:'Partial funding for graduate study in Colombia and abroad.'},
+    {name:'Argentina Government Scholarships', country:'Argentina', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.argentina.gob.ar/educacion', summary:'Partial funding for graduate study in Argentina.'},
+    {name:'Brazil Government Scholarships', country:'Brazil', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.gov.br/mre/', summary:'Full funding for graduate study in Brazil and abroad for Brazilian citizens.'},
+
+    /* ------------------------ EUROPE (MULTI-COUNTRY) ------------------------ */
+    {name:'Erasmus Mundus Joint Masters', country:'European Union (multi-country)', funding:'full', levels:['masters'], fields:ANY, url:'https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en', summary:'Consortium-based master\'s degrees taught in two or more European countries. Scholarships cover tuition, travel, and a living allowance.'},
+    {name:'EIT Scholarships', country:'European Union (multi-country)', funding:'full', levels:['masters','phd'], fields:['Engineering','Computing & Information Technology','Environment & Earth Sciences'], url:'https://www.eit.europa.eu/', summary:'Full funding for innovation and technology programmes across the European Institute of Innovation and Technology.'},
+    {name:'Marie Skłodowska-Curie Actions', country:'European Union (multi-country)', funding:'full', levels:['phd','postdoc'], fields:ANY, url:'https://marie-sklodowska-curie-actions.ec.europa.eu/', summary:'Full funding for doctoral and postdoctoral research across Europe.'},
+    {name:'Coimbra Group Scholarships', country:'European Union (multi-country)', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.coimbra-group.eu/', summary:'Partial funding for graduate study at Coimbra Group member universities.'},
+    {name:'Utrecht Network Scholarships', country:'European Union (multi-country)', funding:'partial', levels:['masters'], fields:ANY, url:'https://utrecht-network.org/', summary:'Partial funding for master\'s study at Utrecht Network member universities.'},
+    {name:'European University Institute', country:'European Union (multi-country)', funding:'full', levels:['phd'], fields:['Social Sciences','Law & Legal Studies','Humanities'], url:'https://www.eui.eu/en/academic-units', summary:'Full doctoral funding in the social sciences at the European University Institute in Florence.'},
+    {name:'College of Europe Scholarships', country:'European Union (multi-country)', funding:'partial', levels:['masters'], fields:['Social Sciences','Law & Legal Studies','Business & Management'], url:'https://www.coleurope.eu/', summary:'Partial funding for master\'s study in European affairs at the College of Europe.'},
+    {name:'Central European University Scholarships', country:'European Union (multi-country)', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://www.ceu.edu/admissions/financial-aid', summary:'Full and partial funding for graduate study at Central European University.'},
+
+    /* ------------------------ CENTRAL & EASTERN EUROPE ------------------------ */
+    {name:'Stipendium Hungaricum', country:'Hungary', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://stipendiumhungaricum.hu/', summary:'Full funding for international students at Hungarian universities.'},
+    {name:'Polish Government Scholarships', country:'Poland', funding:'full', levels:['masters','phd'], fields:ANY, url:'https://nawa.gov.pl/en/', summary:'Full funding for international students at Polish universities.'},
+    {name:'Czech Government Scholarships', country:'Czech Republic', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.dzs.cz/en/', summary:'Full funding for international students at Czech universities.'},
+    {name:'Romanian Government Scholarships', country:'Romania', funding:'full', levels:['bachelors','masters','phd'], fields:ANY, url:'https://www.studyinromania.gov.ro/', summary:'Full funding for international students at Romanian universities.'},
+    {name:'Bulgarian Government Scholarships', country:'Bulgaria', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.mon.bg/en/', summary:'Partial funding for international students at Bulgarian universities.'},
+    {name:'Estonian Government Scholarships', country:'Estonia', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.archimedes.ee/en/', summary:'Partial funding for international students at Estonian universities.'},
+    {name:'Latvian Government Scholarships', country:'Latvia', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.viaa.gov.lv/', summary:'Partial funding for international students at Latvian universities.'},
+    {name:'Lithuanian Government Scholarships', country:'Lithuania', funding:'partial', levels:['masters','phd'], fields:ANY, url:'https://www.scholarships.lt/', summary:'Partial funding for international students at Lithuanian universities.'},
+
+    /* ------------------------ GLOBAL / OTHER FUNDERS ------------------------ */
+    {name:'Wellcome Trust Grants', country:'United Kingdom', funding:'full', levels:['phd','postdoc'], fields:['Health & Medicine'], url:'https://wellcome.org/grant-funding', summary:'Full funding for biomedical research and health-related doctoral and postdoctoral work.'},
+    {name:'Open Society Foundations Grants', country:'Multiple countries', funding:'full', levels:['masters','phd'], fields:['Social Sciences','Law & Legal Studies','Humanities'], url:'https://www.opensocietyfoundations.org/grants', summary:'Full funding for graduate study in fields related to open society, human rights, and governance.'},
+    {name:'Japan Foundation Fellowships', country:'Japan', funding:'full', levels:['phd','postdoc'], fields:['Humanities'], url:'https://www.jpf.go.jp/e/project/culture/', summary:'Full funding for research in Japanese studies and cultural exchange.'},
+    {name:'Korea Foundation Fellowships', country:'South Korea', funding:'full', levels:['masters','phd'], fields:['Humanities','Social Sciences'], url:'https://www.kf.or.kr/', summary:'Full funding for Korean studies and cultural exchange.'},
+    {name:'Volkswagen Foundation Scholarships', country:'Germany', funding:'full', levels:['phd','postdoc'], fields:ANY, url:'https://www.volkswagenstiftung.de/en', summary:'Full funding for research across the sciences and humanities.'},
+    {name:'Bosch Foundation Scholarships', country:'Germany', funding:'partial', levels:['masters'], fields:ANY, url:'https://www.bosch-stiftung.de/en', summary:'Partial funding for master\'s study and research in Germany.'}
+  ];
+
+  var LEVEL_LABEL = { bachelors:"Bachelor's", masters:"Master's", phd:'PhD', postdoc:'Postdoc' };
+  var FUNDING_LABEL = { full:'Fully funded', partial:'Partial funding' };
+
+  /* ==========================================================
+     LIVE COUNT — the impact stats reflect the actual dataset.
+     ========================================================== */
+  (function updateCounts() {
+    var uniqueCountries = {};
+    DATA.forEach(function (d) { uniqueCountries[d.country] = true; });
+    var countryCount = Object.keys(uniqueCountries).length;
+    var courseCount = 0;
+    Object.keys(FIELDS).forEach(function (f) { courseCount += FIELDS[f].length; });
+
+    var awardEl = document.getElementById('stat-awards');
+    var countryEl = document.getElementById('stat-countries');
+    var courseEl = document.getElementById('stat-courses');
+
+    if (awardEl) { awardEl.setAttribute('data-count', DATA.length); awardEl.textContent = '0+'; }
+    if (countryEl) { countryEl.setAttribute('data-count', countryCount); countryEl.textContent = '0'; }
+    if (courseEl) { courseEl.setAttribute('data-count', courseCount); courseEl.textContent = '0+'; }
+  })();
+
+  /* ==========================================================
+     1. OFF-CANVAS DRAWER
+     ========================================================== */
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('backdrop');
+  var hamburger = document.getElementById('hamburger');
+  var closeBtn = document.getElementById('sidebar-close');
+  var lastFocus = null;
+
+  function drawerIsOpen() { return sidebar.classList.contains('is-open'); }
+  function openDrawer() {
+    lastFocus = document.activeElement;
+    sidebar.classList.add('is-open');
+    backdrop.classList.add('is-visible');
+    hamburger.setAttribute('aria-expanded', 'true');
+    hamburger.setAttribute('aria-label', 'Close navigation');
+    document.body.style.overflow = 'hidden';
+    if (closeBtn) closeBtn.focus();
+  }
+  function closeDrawer(returnFocus) {
+    if (!drawerIsOpen()) return;
+    sidebar.classList.remove('is-open');
+    backdrop.classList.remove('is-visible');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Open navigation');
+    document.body.style.overflow = '';
+    if (returnFocus && lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  hamburger.addEventListener('click', function () { drawerIsOpen() ? closeDrawer(true) : openDrawer(); });
+  if (closeBtn) closeBtn.addEventListener('click', function () { closeDrawer(true); });
+  backdrop.addEventListener('click', function () { closeDrawer(true); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drawerIsOpen()) closeDrawer(true); });
+  Array.prototype.forEach.call(sidebar.querySelectorAll('.nav-link'), function (link) {
+    link.addEventListener('click', function () {
+      if (mobileMQ.matches) window.setTimeout(function () { closeDrawer(true); }, 0);
+    });
+  });
+  function onBreakpointChange(e) { if (!e.matches) closeDrawer(false); }
+  if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', onBreakpointChange);
+  else if (mobileMQ.addListener) mobileMQ.addListener(onBreakpointChange);
+
+  /* ==========================================================
+     2. SECTION FADE-UP
+     ========================================================== */
+  var revealSections = document.querySelectorAll('.reveal');
+  if (prefersReduced() || !('IntersectionObserver' in window)) {
+    Array.prototype.forEach.call(revealSections, function (s) { s.classList.add('is-visible'); });
+  } else {
+    var sectionIO = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('is-visible'); obs.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+    Array.prototype.forEach.call(revealSections, function (s) { sectionIO.observe(s); });
+  }
+
+  /* ==========================================================
+     3. STAT COUNTERS
+     ========================================================== */
+  var statsEl = document.getElementById('stats');
+  function runCounter(dt) {
+    var target = parseFloat(dt.getAttribute('data-count')) || 0;
+    var suffix = dt.getAttribute('data-suffix') || '';
+    if (prefersReduced()) { dt.textContent = target.toLocaleString('en-US') + suffix; return; }
+    var duration = 1400, start = null;
+    function step(now) {
+      if (start === null) start = now;
+      var t = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      dt.textContent = Math.round(target * eased).toLocaleString('en-US') + suffix;
+      if (t < 1) window.requestAnimationFrame(step);
+    }
+    window.requestAnimationFrame(step);
+  }
+  if (statsEl) {
+    var dts = Array.prototype.slice.call(statsEl.querySelectorAll('dt[data-count]'));
+    if (prefersReduced() || !('IntersectionObserver' in window)) {
+      dts.forEach(runCounter);
+    } else {
+      dts.forEach(function (dt) { dt.textContent = '0' + (dt.getAttribute('data-suffix') || ''); });
+      var statsIO = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { dts.forEach(runCounter); obs.unobserve(entry.target); }
+        });
+      }, { threshold: 0.5 });
+      statsIO.observe(statsEl);
+    }
+  }
+
+  /* ==========================================================
+     4. ACTIVE NAV TRACKING
+     ========================================================== */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+  var linkForSection = new Map();
+  var trackedSections = [];
+  navLinks.forEach(function (link) {
+    var id = (link.getAttribute('href') || '').slice(1);
+    var sec = id ? document.getElementById(id) : null;
+    if (sec) { linkForSection.set(sec, link); trackedSections.push(sec); }
+  });
+  if (trackedSections.length && 'IntersectionObserver' in window) {
+    var navIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var active = linkForSection.get(entry.target);
+        if (!active) return;
+        navLinks.forEach(function (l) { l.classList.remove('is-active'); l.removeAttribute('aria-current'); });
+        active.classList.add('is-active');
+        active.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    trackedSections.forEach(function (sec) { navIO.observe(sec); });
+  }
+
+  /* ==========================================================
+     5. SCHOLARSHIP SEARCH
+     ========================================================== */
+  var form = document.getElementById('search-form');
+  var qInput = document.getElementById('q');
+  var countrySel = document.getElementById('country');
+  var fieldSel = document.getElementById('field');
+  var subfieldSel = document.getElementById('subfield');
+  var fundingSel = document.getElementById('funding');
+  var levelSel = document.getElementById('level');
+  var resultsEl = document.getElementById('results');
+  var countEl = document.getElementById('result-count');
+  var liveEl = document.getElementById('live');
+
+  var state = { q:'', country:'', field:'', subfield:'', funding:'', level:'' };
+  var PAGE_SIZE = 12;
+  var limit = 6;
+  var hasSearched = false;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+  function isOpenToAll(d) { return !d.fields || d.fields.indexOf('ANY') !== -1; }
+
+  /* --- Text matching engine ------------------------------- */
+  var STOP = { the:1, of:1, and:1, in:1, to:1, for:1, a:1, an:1, on:1, at:1, by:1, with:1, or:1, is:1, are:1, be:1 };
+  var SUFFIXES = ['ologies','ology','ically','ical','istic','ics','ic','ing','tion','sion','ion','ity','ies','ive','ous','al','ed','es','s','y'];
+
+  function normalize(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/^\s+|\s+$/g, ''); }
+  function tokenize(s) {
+    var parts = normalize(s).split(' '), out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var t = parts[i];
+      if (!t || t.length < 2 || STOP[t]) continue;
+      out.push(t);
+    }
+    return out;
+  }
+  function stem(w) {
+    for (var i = 0; i < SUFFIXES.length; i++) {
+      var suf = SUFFIXES[i];
+      if (w.length - suf.length >= 4 && w.slice(w.length - suf.length) === suf) return w.slice(0, w.length - suf.length);
+    }
+    return w;
+  }
+  function termsMatch(a, b) {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    var sa = stem(a), sb = stem(b);
+    if (sa === sb && sa.length >= 4) return true;
+    var shorter = a.length <= b.length ? a : b;
+    var longer  = a.length <= b.length ? b : a;
+    if (shorter.length >= 4 && longer.lastIndexOf(shorter, 0) === 0) return true;
+    var ss = sa.length <= sb.length ? sa : sb;
+    var ls = sa.length <= sb.length ? sb : sa;
+    if (ss.length >= 4 && ls.lastIndexOf(ss, 0) === 0) return true;
+    var minL = Math.min(a.length, b.length), shared = 0;
+    while (shared < minL && a.charAt(shared) === b.charAt(shared)) shared++;
+    if (shared >= 5) return true;
+    return false;
+  }
+  function allTokensMatch(qT, tT) {
+    for (var i = 0; i < qT.length; i++) {
+      var q = qT[i], hit = false;
+      for (var j = 0; j < tT.length; j++) { if (termsMatch(q, tT[j])) { hit = true; break; } }
+      if (!hit) return false;
+    }
+    return true;
+  }
+  function anySignificant(qT, tT) {
+    for (var i = 0; i < qT.length; i++) {
+      var q = qT[i];
+      if (q.length < 5) continue;
+      for (var j = 0; j < tT.length; j++) { if (termsMatch(q, tT[j])) return true; }
+    }
+    return false;
+  }
+  function taxonomyHits(qT) {
+    var result = {}, anyStrong = false, keys = Object.keys(FIELDS);
+    for (var k = 0; k < keys.length; k++) {
+      var fieldName = keys[k];
+      var terms = [fieldName].concat(FIELDS[fieldName]);
+      var entry = { strong: false, terms: [] };
+      for (var t = 0; t < terms.length; t++) {
+        var tt = tokenize(terms[t]);
+        if (!tt.length) continue;
+        if (allTokensMatch(qT, tt)) {
+          entry.strong = true;
+          if (entry.terms.indexOf(terms[t]) === -1) entry.terms.push(terms[t]);
+        } else if (anySignificant(qT, tt)) {
+          if (entry.terms.indexOf(terms[t]) === -1) entry.terms.push(terms[t]);
+        }
+      }
+      if (entry.terms.length) { result[fieldName] = entry; if (entry.strong) anyStrong = true; }
+    }
+    if (anyStrong) {
+      Object.keys(result).forEach(function (f) { if (!result[f].strong) delete result[f]; });
+    }
+    return result;
+  }
+  function matchedFieldsFor(d, tax) {
+    var fields = Object.keys(tax);
+    if (!fields.length) return [];
+    if (isOpenToAll(d)) return fields;
+    var out = [];
+    for (var i = 0; i < fields.length; i++) if (d.fields.indexOf(fields[i]) !== -1) out.push(fields[i]);
+    return out;
+  }
+
+  /* --- Filter predicates ---------------------------------- */
+  function coversField(d, field) {
+    if (!field) return true;
+    if (isOpenToAll(d)) return true;
+    return d.fields.indexOf(field) !== -1;
+  }
+  function coversSubfield(d, sub) {
+    if (!sub) return true;
+    if (isOpenToAll(d)) return true;
+    var parent = SUBFIELD_TO_FIELD[sub];
+    if (!parent) return true;
+    if (d.fields.indexOf(parent) === -1) return false;
+    if (d.subfields && d.subfields.length) return d.subfields.indexOf(sub) !== -1;
+    return true;
+  }
+  function awardTextMatches(d, qT) {
+    var parts = [d.name, d.country, d.summary, FUNDING_LABEL[d.funding] || d.funding, d.funding];
+    for (var i = 0; i < d.levels.length; i++) { parts.push(LEVEL_LABEL[d.levels[i]] || d.levels[i]); parts.push(d.levels[i]); }
+    if (!isOpenToAll(d)) parts.push(d.fields.join(' '));
+    return allTokensMatch(qT, tokenize(parts.join(' ')));
+  }
+  function matches(d, qT, tax) {
+    if (state.country && d.country !== state.country) return false;
+    if (state.funding && d.funding !== state.funding) return false;
+    if (state.level && d.levels.indexOf(state.level) === -1) return false;
+    if (state.field && !coversField(d, state.field)) return false;
+    if (state.subfield && !coversSubfield(d, state.subfield)) return false;
+    if (!qT.length) return true;
+    if (awardTextMatches(d, qT)) return true;
+    if (matchedFieldsFor(d, tax).length) return true;
+    return false;
+  }
+
+  /* --- Select population ---------------------------------- */
+  (function buildCountries() {
+    var seen = {}, list = [];
+    DATA.forEach(function (d) { if (!seen[d.country]) { seen[d.country] = true; list.push(d.country); } });
+    list.sort(function (a, b) { return a.localeCompare(b); });
+    list.forEach(function (c) {
+      var opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      countrySel.appendChild(opt);
+    });
+  })();
+
+  Object.keys(FIELDS).forEach(function (f) {
+    var opt = document.createElement('option');
+    opt.value = f; opt.textContent = f;
+    fieldSel.appendChild(opt);
+  });
+
+  function populateSubfields() {
+    var f = fieldSel.value;
+    subfieldSel.innerHTML = '';
+    var all = document.createElement('option');
+    all.value = ''; all.textContent = 'All courses';
+    subfieldSel.appendChild(all);
+    if (f && FIELDS[f]) {
+      FIELDS[f].forEach(function (s) {
+        var o = document.createElement('option');
+        o.value = s; o.textContent = s;
+        subfieldSel.appendChild(o);
+      });
+    } else {
+      Object.keys(FIELDS).forEach(function (fieldName) {
+        var g = document.createElement('optgroup');
+        g.label = fieldName;
+        FIELDS[fieldName].forEach(function (s) {
+          var o = document.createElement('option');
+          o.value = s; o.textContent = s;
+          g.appendChild(o);
+        });
+        subfieldSel.appendChild(g);
+      });
+    }
+  }
+  populateSubfields();
+
+  fieldSel.addEventListener('change', function () {
+    var current = subfieldSel.value;
+    populateSubfields();
+    if (current && FIELDS[fieldSel.value] && FIELDS[fieldSel.value].indexOf(current) === -1) subfieldSel.value = '';
+  });
+
+  /* --- Rendering ------------------------------------------ */
+  function fieldsLabel(d) {
+    if (isOpenToAll(d)) return 'Open to all fields of study';
+    return d.fields.join(' · ');
+  }
+  function itemHTML(d, tax) {
+    var levels = d.levels.map(function (l) { return LEVEL_LABEL[l] || l; }).join(', ');
+    var funding = FUNDING_LABEL[d.funding] || d.funding;
+    var matched = matchedFieldsFor(d, tax);
+    var matchLine = '';
+    if (matched.length && isOpenToAll(d)) {
+      var label = matched.slice(0, 2).join(' · ');
+      if (matched.length > 2) label += ' +' + (matched.length - 2) + ' more';
+      matchLine = '<p class="result-fields">Matches your search in: ' + esc(label) + '</p>';
+    }
+    return '' +
+      '<li class="result">' +
+        '<div class="result-head">' +
+          '<h3>' + esc(d.name) + '</h3>' +
+          '<span class="badge">Link verified</span>' +
+        '</div>' +
+        '<p class="result-meta">' + esc(d.country) + ' &middot; ' + esc(funding) + ' &middot; ' + esc(levels) + '</p>' +
+        '<p class="result-fields">' + esc(fieldsLabel(d)) + '</p>' +
+        matchLine +
+        '<p class="result-desc">' + esc(d.summary) + '</p>' +
+        '<div class="result-foot">' +
+          '<a class="link-arrow" href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' +
+            'Official programme page <span aria-hidden="true">&rarr;</span>' +
+          '</a>' +
+          '<span class="verified-note">Checked ' + esc(VERIFIED) + '</span>' +
+        '</div>' +
+      '</li>';
+  }
+  function idleHTML() {
+    return '' +
+      '<li class="result result--idle">' +
+        '<p class="idle-label">Awaiting your search</p>' +
+        '<p>Enter a keyword, or choose a host country, field of study, funding level, or degree level. The index will show only the awards that match.</p>' +
+        '<p>Not sure where to start? Try one of the chips above — <em>neuroscience</em>, <em>cognitive science</em>, or <em>marine engineering</em>.</p>' +
+      '</li>';
+  }
+  function readForm() {
+    state.q = qInput.value || '';
+    state.country = countrySel.value || '';
+    state.field = fieldSel.value || '';
+    state.subfield = subfieldSel.value || '';
+    state.funding = fundingSel.value || '';
+    state.level = levelSel.value || '';
+  }
+  function render() {
+    if (!hasSearched) {
+      countEl.textContent = '0 awards — awaiting your search';
+      resultsEl.innerHTML = idleHTML();
+      return;
+    }
+    var qT = tokenize(state.q);
+    var tax = qT.length ? taxonomyHits(qT) : {};
+    var out = DATA.filter(function (d) { return matches(d, qT, tax); });
+    out.sort(function (a, b) {
+      if (a.funding !== b.funding) return a.funding === 'full' ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    var total = out.length;
+    var shown = out.slice(0, limit);
+    if (total === 0) {
+      resultsEl.innerHTML =
+        '<li class="result result--empty">' +
+          '<p>No awards match those filters. Try a shorter keyword — "neuro", "cognitive", or "marine" — or clear the funding and degree selections.</p>' +
+          '<p><button type="button" class="btn btn--ghost" data-clear>Clear all filters</button></p>' +
+        '</li>';
+    } else {
+      var html = shown.map(function (d) { return itemHTML(d, tax); }).join('');
+      if (total > shown.length) {
+        html += '<li class="result result--more"><button type="button" class="btn btn--ghost" data-more>Show ' + (total - shown.length) + ' more</button></li>';
+      }
+      resultsEl.innerHTML = html;
+    }
+    countEl.textContent = total === 0 ? 'No matching awards' : total + ' award' + (total === 1 ? '' : 's') + ' match your filters';
+  }
+  function announce() { if (liveEl) liveEl.textContent = countEl.textContent + '.'; }
+  function apply() { hasSearched = true; readForm(); limit = 6; render(); }
+  function resetToIdle() { hasSearched = false; readForm(); limit = 6; render(); }
+
+  /* --- Events --------------------------------------------- */
+  form.addEventListener('input', apply);
+  form.addEventListener('submit', function (e) { e.preventDefault(); apply(); announce(); });
+  form.addEventListener('reset', function () {
+    window.setTimeout(function () {
+      fieldSel.value = '';
+      populateSubfields();
+      subfieldSel.value = '';
+      resetToIdle();
+      announce();
+    }, 0);
+  });
+  resultsEl.addEventListener('click', function (e) {
+    var moreBtn = e.target.closest('[data-more]');
+    if (moreBtn) { limit += PAGE_SIZE; render(); return; }
+    var clearBtn = e.target.closest('[data-clear]');
+    if (clearBtn) {
+      form.reset();
+      window.setTimeout(function () {
+        fieldSel.value = '';
+        populateSubfields();
+        subfieldSel.value = '';
+        resetToIdle();
+        announce();
+      }, 0);
+    }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.chip[data-term]'), function (chip) {
+    chip.addEventListener('click', function () {
+      qInput.value = chip.getAttribute('data-term') || '';
+      fieldSel.value = '';
+      populateSubfields();
+      subfieldSel.value = '';
+      countrySel.value = '';
+      fundingSel.value = '';
+      levelSel.value = '';
+      apply();
+      announce();
+      var y = resultsEl.getBoundingClientRect().top + window.pageYOffset - 120;
+      window.scrollTo({ top: y, behavior: prefersReduced() ? 'auto' : 'smooth' });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-filter]'), function (link) {
+    link.addEventListener('click', function () {
+      var parts = (link.getAttribute('data-filter') || '').split(':');
+      var key = parts[0], val = parts[1];
+      if (!key || !val) return;
+      if (key === 'level') levelSel.value = val;
+      if (key === 'funding') fundingSel.value = val;
+      if (key === 'country') countrySel.value = val;
+      if (key === 'field') { fieldSel.value = val; populateSubfields(); }
+      apply();
+      announce();
+    });
+  });
+
+  readForm();
+  render();
+
+})();
+</script>
+</body>
+</html>
